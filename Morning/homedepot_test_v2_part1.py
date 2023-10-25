@@ -141,18 +141,20 @@ def run():
                 if each_store_no not in already_scraped_ids:
                     
                     if main_counter != 0:
-                        driver.find_element(By.CLASS_NAME, "MyStoreWrapper").click()
-                        sleep(4)
                         # store no which are not scraped, keep limit = 100 and then try other script
                         
                         while True:
                             try:
+                                driver.find_element(By.CLASS_NAME, "MyStoreWrapper").click()
+                                sleep(4)
                                 driver.implicitly_wait(10)
                                 select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
                                 select_btn.click()
                                 sleep(2)
                                 break
                             except:
+                                driver.refresh()
+                                sleep(5)
                                 continue 
                             
                             # except NoSuchElementException or TimeoutException:
