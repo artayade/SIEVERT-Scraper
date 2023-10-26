@@ -135,7 +135,7 @@ def append_new_data():
     updated_df.drop('Unnamed: 0', axis=1, inplace=True)
     # print(updated_df)
 
-    updated_df.to_excel("Z:/Cylinders Analytics/Akshit-Data Source/sievert_daily_data.xlsx")
+    # updated_df.to_excel("Z:/Cylinders Analytics/Akshit-Data Source/sievert_daily_data.xlsx")
     updated_df.to_excel("sievert_daily_data.xlsx")
 
 def pushTodatabase(dataframe):

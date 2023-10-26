@@ -5,7 +5,7 @@ import json
 from store_listing import get_store_num
 import winsound
 
-global_date = '2023-10-24'
+global_date = '2023-10-25'
 
 if __name__ == '__main__':
     while True:

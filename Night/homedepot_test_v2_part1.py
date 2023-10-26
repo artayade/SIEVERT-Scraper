@@ -21,7 +21,7 @@ from store_listing import get_store_num
 import os
 import json
 
-global_date = '2023-10-24'
+global_date = '2023-10-25'
 
 def get_part_of_day(h):
     return (
