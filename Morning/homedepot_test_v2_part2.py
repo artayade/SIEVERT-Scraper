@@ -86,13 +86,16 @@ def run():
         else:
             already_scraped_ids = d
 
-        print(already_scraped_ids)
+        # print(already_scraped_ids)
 
     driver = required_options_and_Driver()
     
     driver.get("https://www.homedepot.com/p/14-1-oz-MAPP-Gas-Cylinder-1-in-Valve-No-Regulator-Required-221197/318912570")
 
-    driver.implicitly_wait(5)
+    # driver.implicitly_wait(10)
+    sleep(10)
+    driver.set_page_load_timeout(10)
+    # sleep(3)
     # print("page loaded")
 
     driver.execute_script("window.scrollBy(0, 800)")
@@ -111,56 +114,67 @@ def run():
 
     driver.implicitly_wait(3)
 
-    while True:
-        try:
-            drop_down_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "MyStoreWrapper")))
-            drop_down_btn.click()
-            sleep(1)
-            
-            # store_no = driver.find_elements(By.CLASS_NAME, 'u__medium')[1].text
-            # sleep(1)
+    # - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - - 
+    # check if item has been added to cart
+    try:
+        wait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'cart-pod-grid-container-two-tile')))
+        print('item added to cart')
 
-            select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
-            select_btn.click()
-            sleep(1)
-            break
-        except:
-            driver.refresh()
-            sleep(5)
-            continue
-
-    # store no which are already scraped
-    main_counter = 0
-
-    for each_store_no in get_store_num()[1000:]:
-        todays_stock_status = []
-
-        if str(each_store_no)[-1].isalpha():
-            continue
-        
-        else:
+        while True:
             try:
-                if each_store_no not in already_scraped_ids:
-                    
-                    if main_counter != 0:
-                        
-                        # store no which are not scraped, keep limit = 100 and then try other script
-                        while True:
-                            try:
-                                drop_down_btn = wait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "MyStoreWrapper")))
-                                drop_down_btn.click()
-                                sleep(4)
-                                driver.implicitly_wait(10)
-                                select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
-                                select_btn.click()
-                                sleep(2)
-                                break
-                            except:
-                                driver.refresh()
-                                sleep(5)
-                                continue
+                drop_down_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "MyStoreWrapper")))
+                drop_down_btn.click()
+                sleep(1)
+                
+                # store_no = driver.find_elements(By.CLASS_NAME, 'u__medium')[1].text
+                # sleep(1)
 
-                    try:
+                select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
+                select_btn.click()
+                sleep(1)
+                break
+            except:
+                driver.refresh()
+                sleep(5)
+                continue
+
+        # store no which are already scraped
+        main_counter = 0
+
+        for each_store_no in get_store_num()[1000:]:
+            todays_stock_status = []
+
+            while True:
+                try:
+                    if each_store_no not in already_scraped_ids:
+                        
+                        if main_counter != 0:
+                            # store no which are not scraped, keep limit = 100 and then try other script
+                            
+                            while True:
+                                try:
+                                    driver.find_element(By.CLASS_NAME, "MyStoreWrapper").click()
+                                    sleep(4)
+                                    driver.implicitly_wait(10)
+                                    select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
+                                    select_btn.click()
+                                    sleep(2)
+                                    break
+                                except:
+                                    driver.refresh()
+                                    sleep(5)
+                                    continue 
+                                
+                                # except NoSuchElementException or TimeoutException:
+                                #     driver.refresh()
+                                #     sleep(2)
+                                #     drop_down_btn = wait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "MyStoreWrapper")))
+                                #     drop_down_btn.click()
+                                #     sleep(2)
+                                #     select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
+                                #     select_btn.click()
+                                #     sleep(2)
+
                         next_store_no = driver.find_element(By.ID, 'myStore-formInput')
                         next_store_no.send_keys(each_store_no)
                         next_store_no.send_keys(Keys.ENTER)
@@ -194,19 +208,24 @@ def run():
                             with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'w') as file:
                                 json.dump([each_store_no], file)
 
-                    except:
-                        continue
+                        main_counter += 1
 
-                    main_counter += 1
+                    else:
+                        pass
+                    
+                    break
 
-                else:
-                    pass
-            
-            except SessionNotCreatedException or WebDriverException or NoSuchElementException or TimeoutException or ElementNotInteractableException or StaleElementReferenceException:
-                continue
+                except SessionNotCreatedException or WebDriverException or NoSuchElementException or TimeoutException or ElementNotInteractableException or StaleElementReferenceException:
+                    driver.refresh()
+                    sleep(3)
 
-    driver.quit()
- 
+        driver.quit()
+
+    except NoSuchElementException:
+        driver.quit()
+
+    # - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -
+
 def main():
     os.makedirs(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2', exist_ok=True)
     run()
