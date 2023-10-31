@@ -117,8 +117,12 @@ def run():
     # - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - - 
     # check if item has been added to cart
     try:
-        wait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'cart-pod-grid-container-two-tile')))
-        print('item added to cart')
+        try:
+            wait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'cart-pod-grid-container-two-tile')))
+            print('item added to cart')
+        except:
+            driver.find_element(By.CSS_SELECTOR, '#root > div > div > div.sui-grid.sui-grid-cols-12.sui-px-2.md\:sui-px-6.lg\:sui-px-8 > div.sui-col-span-12.lg\:sui-col-span-8.lg\:sui-pr-8 > div.cart-item-list > div > div:nth-child(4) > div > div')
+            print('item added to cart')
 
         while True:
             try:
