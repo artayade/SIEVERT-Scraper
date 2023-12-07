@@ -21,6 +21,8 @@ from store_listing import get_store_num
 import os
 import json
 
+global_date = '2023-12-06'
+
 def get_part_of_day(h):
     return (
         "morning"
@@ -77,8 +79,8 @@ def required_options_and_Driver(type_of_driver=True):
 def run():
     already_scraped_ids = []
     
-    if os.path.exists(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json'):
-        with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json') as f:
+    if os.path.exists(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json'):
+        with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json') as f:
             d = json.load(f)
 
         if len(d) == 1:
@@ -117,65 +119,32 @@ def run():
     # - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - - 
     # check if item has been added to cart
     try:
-        try:
-            try:
-                # checking cart cpunt
-                cart_Ct = driver.find_element(By.XPATH, '//*[@id="headerCart"]/div[1]/span[2]').text
-                if cart_Ct != '0':
-                    print("Item added to cart")
-                else:
-                    print("Item couldnt be added to cart")
-                    driver.quit()
-            except:
-                # checking cart cpunt
-                cart_Ct = driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[5]/div[1]').text
-                if cart_Ct != '0':
-                    print("Item added to cart")
-                else:
-                    print("Item couldnt be added to cart")
-                    driver.quit()
-
-        except:
+        # checking cart cpunt
+        cart_Ct = driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[5]/div[1]').text
+        print("cart content =", cart_Ct)
+        
+        if cart_Ct != '0' or ' Cart':
+            print("Item added to cart")
+        else:
             print("Item couldnt be added to cart")
             driver.quit()
-
-        sleep(5)
-
-        '''
+    
+        
         while True:
             try:
-                try:
-                    try:
-                        drop_down_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "MyStoreWrapper")))
-                        drop_down_btn.click()
-                        sleep(1)
-                        
-                        # store_no = driver.find_elements(By.CLASS_NAME, 'u__medium')[1].text
-                        # sleep(1)
-
-                        select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
-                        select_btn.click()
-                        sleep(1)
-                        break
-                    except:
-                        continue
-            
-                except:
-                    try:
-                        driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
-                        sleep(2)
-                        scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
-                        driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
-                        sleep(1)
-                        break
-                    except:
-                        continue
-
+                driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
+                sleep(2)
+                scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
+                driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
+                sleep(1)
+                break
             except:
                 driver.refresh()
                 sleep(5)
                 continue
-        '''
+
+
+        driver.set_page_load_timeout(10)
 
         # store no which are already scraped
         main_counter = 0
@@ -185,90 +154,77 @@ def run():
 
             while True:
                 try:
+                            
                     if each_store_no not in already_scraped_ids:
                         
                         if main_counter != 0:
                             # store no which are not scraped, keep limit = 100 and then try other script
+                            print("Finding Store")
                             
                             while True:
                                 try:
-                                    try:
-                                        driver.find_element(By.CLASS_NAME, "MyStoreWrapper").click()
-                                        sleep(4)
-                                        driver.implicitly_wait(10)
-                                        select_btn = wait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#myStoreDropdown > div > div.col__12-12.u--text-md > a')))
-                                        select_btn.click()
-                                        sleep(2)
-                                        
-                                    except:
-                                        driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
-                                        sleep(2)
-                                        scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
-                                        driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
-                                        sleep(1)
-                                    
+                                    wait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button'))).click()
+                                    # driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
+                                    sleep(2)
+                                    scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
+                                    driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
+                                    sleep(1)
                                     break
                                 except:
                                     driver.refresh()
                                     sleep(5)
                                     continue 
-                          
+                        
+                    
+                        # next_store_no = wait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, 'input')))   
+                        next_store_no = driver.find_element(By.XPATH, '//*[@id="header-anchor-drawer"]/div[2]/div/div[2]/div[3]/div/div[1]')
+                        next_store_no = next_store_no.find_element(By.TAG_NAME, "input")
+                        next_store_no.send_keys(each_store_no)
+                        next_store_no.send_keys(Keys.ENTER)
+                        sleep(2)
+
+                        scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
+                        driver.execute_script("arguments[0].scrollBy(0, 100);", scroll_drawer)
+                        sleep(1)
+
+                        all_stores_list = driver.find_element(By.CLASS_NAME, 'sui-pt-3')
+                        first_store_to_select = all_stores_list.find_elements(By.CLASS_NAME, 'sui-mb-3')[0]
+                        # current_store_no = first_store_to_select.find_element(By.CLASS_NAME, 'sui-pt-1').text
+                        # print(current_store_no.split("#")[-1])
+                        all_btns = first_store_to_select.find_elements(By.CLASS_NAME, "sui-pt-2")
+                        all_btns[-1].click()
+                        sleep(5)
+
                         try:
-                            next_store_no = driver.find_element(By.ID, 'myStore-formInput')
-                            next_store_no.send_keys(each_store_no)
-                            next_store_no.send_keys(Keys.ENTER)
-                            sleep(2)
-
-                            first_store_to_select = driver.find_elements(By.CLASS_NAME, 'localization__store')[0]
-                            current_store_no = first_store_to_select.text.split("\n")[0].split("#")[-1]
-                            first_store_to_select.find_element(By.CLASS_NAME, 'localization__button--select').click()
-                            sleep(5)
-
-                            try:
-                                qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
-                                qty = int(qty.split(" ")[0])
-                            except:
-                                qty = 0
-                        
+                            qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
+                            qty = int(qty.split(" ")[0])
                         except:
-                            next_store_no = driver.find_element(By.ID, 'sui-ilc-dXA2U4Pw43JvDbbei')
-                            next_store_no.send_keys(each_store_no)
-                            next_store_no.send_keys(Keys.ENTER)
-                            sleep(2)
+                            qty = 0
 
-                            scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
-                            driver.execute_script("arguments[0].scrollBy(500, 700);", scroll_drawer)
-                            sleep(1)
-
-                            first_store_to_select = driver.find_elements(By.CLASS_NAME, 'sui-mb-3')[0]
-                            current_store_no = first_store_to_select.text.split("\n")[0].split("#")[-1]
-                            first_store_to_select.find_element(By.XPATH, "//button[text()='Shop This Store']").click()
-                            sleep(5)
-                            print(current_store_no)
+                        print(qty)
                         
-                        '''
-                        todays_stock_status.append([current_store_no, qty])
+                        todays_stock_status.append([each_store_no, qty])
 
-                        with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/{each_store_no}.json', "w") as file:
+                        with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/{each_store_no}.json', "w") as file:
                             json.dump(todays_stock_status, file)
 
-                        if os.path.exists(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json'):
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json', 'r') as file:
+                        if os.path.exists(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json'):
+                            with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json', 'r') as file:
                                 existing_data = json.load(file)
 
                             existing_data.append(each_store_no)
 
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json', 'w') as file:
+                            with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json', 'w') as file:
                                 json.dump(existing_data, file)
                         else:
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1/already_scraped.json', 'w') as file:
+                            with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/already_scraped.json', 'w') as file:
                                 json.dump([each_store_no], file)
-                        '''
+                        
                         main_counter += 1
 
                     else:
                         pass
-                    
+            
                     break
 
                 except SessionNotCreatedException or WebDriverException or NoSuchElementException or TimeoutException or ElementNotInteractableException or StaleElementReferenceException:
