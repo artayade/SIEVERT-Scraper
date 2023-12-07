@@ -19,7 +19,7 @@ if __name__ == '__main__':
                 break
 
             else:
-                os.system('python homedepot_test_v2_part1.py')
+                os.system('python homedepot_test_v2_part1_NEW.py')
                 frequency = 2500  # Set Frequency To 2500 Hertz
                 duration = 1000  # Set Duration To 1000 ms == 1 second
                 winsound.Beep(frequency, duration)
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 
         
         else:
-            os.system('python homedepot_test_v2_part1.py')
+            os.system('python homedepot_test_v2_part1_NEW.py')
             frequency = 2500  # Set Frequency To 2500 Hertz
             duration = 1000  # Set Duration To 1000 ms == 1 second
             winsound.Beep(frequency, duration)
