@@ -21,7 +21,7 @@ from store_listing import get_store_num
 import os
 import json
 
-global_date = '2023-10-30'
+global_date = '2023-12-06'
 
 def get_part_of_day(h):
     return (
@@ -120,11 +120,16 @@ def run():
     # check if item has been added to cart
     try:
         try:
-            wait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'cart-pod-grid-container-two-tile')))
-            print('item added to cart')
+            # checking cart cpunt
+            cart_Ct = driver.find_element(By.XPATH, '//*[@id="headerCart"]/div[1]/span[2]').text
+            if cart_Ct != '0':
+                print("Item added to cart")
+            else:
+                print("Item couldnt be added to cart")
+                driver.quit()
         except:
-            driver.find_element(By.CSS_SELECTOR, '#root > div > div > div.sui-grid.sui-grid-cols-12.sui-px-2.md\:sui-px-6.lg\:sui-px-8 > div.sui-col-span-12.lg\:sui-col-span-8.lg\:sui-pr-8 > div.cart-item-list > div > div:nth-child(4) > div > div')
-            print('item added to cart')
+            print("Item couldnt be added to cart")
+            driver.quit()
 
         while True:
             try:
