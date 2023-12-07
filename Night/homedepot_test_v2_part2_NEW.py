@@ -195,12 +195,16 @@ def run():
                         all_btns[-1].click()
                         sleep(5)
 
-                        try:
+                        selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
+
+                        if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
+                            print(selected_tag, 'Out of Stock!')
+                            qty = np.NAN
+
+                        else:
                             qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
                             qty = int(qty.split(" ")[0])
-                        except:
-                            qty = 0
-
+                        
                         print(qty)
                         
                         todays_stock_status.append([each_store_no, qty])
