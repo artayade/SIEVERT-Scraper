@@ -21,7 +21,7 @@ from store_listing import get_store_num
 import os
 import json
 
-global_date = '2023-12-06'
+global_date = '2023-12-07'
 
 def get_part_of_day(h):
     return (
@@ -100,7 +100,7 @@ def run():
     # sleep(3)
     # print("page loaded")
 
-    driver.execute_script("window.scrollBy(0, 800)")
+    driver.execute_script("window.scrollBy(0, 600)")
 
     try:
         driver.find_element(By.CSS_SELECTOR, '#root > div > div:nth-child(3) > div > div > div.col__12-12.col__5-12--sm > div > div > div:nth-child(10) > div > div > div:nth-child(2) > div > div > div.buybox__actions--atc > div > div > div > button').click()
@@ -195,18 +195,23 @@ def run():
                         all_btns[-1].click()
                         sleep(5)
 
-                        selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
+                        try:
+                            selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
 
-                        if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
-                            print(selected_tag, 'Out of Stock!')
+                            if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
+                                print(selected_tag, 'Out of Stock!')
+                                qty = np.NAN
+
+                            else:
+                                qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
+                                if qty.startswith('In stock'):
+                                    qty = np.NAN
+                                else:
+                                    qty = int(qty.split(" ")[0])
+                        except:
                             qty = np.NAN
-
-                        else:
-                            qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
-                            qty = int(qty.split(" ")[0])
                         
                         print(qty)
-                        
                         todays_stock_status.append([each_store_no, qty])
 
                         with open(f'brickseek_temp_json_night_homedepot_{global_date}_part1/{each_store_no}.json', "w") as file:
@@ -242,7 +247,7 @@ def run():
     # - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -  - - -
 
 def main():
-    os.makedirs(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part1', exist_ok=True)
+    os.makedirs(f'brickseek_temp_json_night_homedepot_{datetime.now().date()}_part1', exist_ok=True)
     run()
 
 if __name__ == '__main__':

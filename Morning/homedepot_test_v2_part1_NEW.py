@@ -98,7 +98,7 @@ def run():
     # sleep(3)
     # print("page loaded")
 
-    driver.execute_script("window.scrollBy(0, 800)")
+    driver.execute_script("window.scrollBy(0, 600)")
 
     try:
         driver.find_element(By.CSS_SELECTOR, '#root > div > div:nth-child(3) > div > div > div.col__12-12.col__5-12--sm > div > div > div:nth-child(10) > div > div > div:nth-child(2) > div > div > div.buybox__actions--atc > div > div > div > button').click()
@@ -183,7 +183,7 @@ def run():
 
                         scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
                         driver.execute_script("arguments[0].scrollBy(0, 100);", scroll_drawer)
-                        sleep(1)
+                        sleep(2)
 
                         all_stores_list = driver.find_element(By.CLASS_NAME, 'sui-pt-3')
                         first_store_to_select = all_stores_list.find_elements(By.CLASS_NAME, 'sui-mb-3')[0]
@@ -193,15 +193,21 @@ def run():
                         all_btns[-1].click()
                         sleep(5)
 
-                        selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
+                        try:
+                            selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
 
-                        if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
-                            print(selected_tag, 'Out of Stock!')
+                            if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
+                                print(selected_tag, 'Out of Stock!')
+                                qty = np.NAN
+
+                            else:
+                                qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
+                                if qty.startswith('In stock'):
+                                    qty = np.NAN
+                                else:
+                                    qty = int(qty.split(" ")[0])
+                        except:
                             qty = np.NAN
-
-                        else:
-                            qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
-                            qty = int(qty.split(" ")[0])
                         
                         print(qty)
                         
@@ -223,6 +229,8 @@ def run():
                                 json.dump([each_store_no], file)
                         
                         main_counter += 1
+
+                        sleep(2)
 
                     else:
                         pass

@@ -5,7 +5,7 @@ import json
 from store_listing import get_store_num
 import winsound
 
-global_date = '2023-12-06'
+global_date = '2023-12-07'
 
 if __name__ == '__main__':
     while True:
@@ -20,14 +20,14 @@ if __name__ == '__main__':
                 break
 
             else:
-                os.system('python homedepot_test_v2_part2.py')
+                os.system('python homedepot_test_v2_part2_NEW.py')
                 frequency = 2500  # Set Frequency To 2500 Hertz
                 duration = 1000  # Set Duration To 1000 ms == 1 second
                 winsound.Beep(frequency, duration)
                 sleep(100)
         
         else:
-            os.system('python homedepot_test_v2_part2.py')
+            os.system('python homedepot_test_v2_part2_NEW.py')
             frequency = 2500  # Set Frequency To 2500 Hertz
             duration = 1000  # Set Duration To 1000 ms == 1 second
             winsound.Beep(frequency, duration)

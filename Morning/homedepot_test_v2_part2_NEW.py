@@ -98,7 +98,7 @@ def run():
     # sleep(3)
     # print("page loaded")
 
-    driver.execute_script("window.scrollBy(0, 800)")
+    driver.execute_script("window.scrollBy(0, 600)")
 
     try:
         driver.find_element(By.CSS_SELECTOR, '#root > div > div:nth-child(3) > div > div > div.col__12-12.col__5-12--sm > div > div > div:nth-child(10) > div > div > div:nth-child(2) > div > div > div.buybox__actions--atc > div > div > div > button').click()
@@ -150,89 +150,101 @@ def run():
         for each_store_no in get_store_num()[1000:]:
             todays_stock_status = []
 
-            while True:
-                try:
-                            
-                    if each_store_no not in already_scraped_ids:
-                        
-                        if main_counter != 0:
-                            # store no which are not scraped, keep limit = 100 and then try other script
-                            print("Finding Store")
-                            
-                            while True:
-                                try:
-                                    wait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button'))).click()
-                                    # driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
-                                    sleep(2)
-                                    scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
-                                    driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
-                                    sleep(1)
-                                    break
-                                except:
-                                    driver.refresh()
-                                    sleep(5)
-                                    continue 
-                        
-                    
-                        # next_store_no = wait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, 'input')))   
-                        next_store_no = driver.find_element(By.XPATH, '//*[@id="header-anchor-drawer"]/div[2]/div/div[2]/div[3]/div/div[1]')
-                        next_store_no = next_store_no.find_element(By.TAG_NAME, "input")
-                        next_store_no.send_keys(each_store_no)
-                        next_store_no.send_keys(Keys.ENTER)
-                        sleep(2)
-
-                        scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
-                        driver.execute_script("arguments[0].scrollBy(0, 100);", scroll_drawer)
-                        sleep(1)
-
-                        all_stores_list = driver.find_element(By.CLASS_NAME, 'sui-pt-3')
-                        first_store_to_select = all_stores_list.find_elements(By.CLASS_NAME, 'sui-mb-3')[0]
-                        # current_store_no = first_store_to_select.find_element(By.CLASS_NAME, 'sui-pt-1').text
-                        # print(current_store_no.split("#")[-1])
-                        all_btns = first_store_to_select.find_elements(By.CLASS_NAME, "sui-pt-2")
-                        all_btns[-1].click()
-                        sleep(5)
-
-                        selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
-
-                        if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
-                            print(selected_tag, 'Out of Stock!')
-                            qty = np.NAN
-
-                        else:
-                            qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
-                            qty = int(qty.split(" ")[0])
-                        
-                        print(qty)
-                        
-                        todays_stock_status.append([each_store_no, qty])
-
-                        with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/{each_store_no}.json', "w") as file:
-                            json.dump(todays_stock_status, file)
-
-                        if os.path.exists(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json'):
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'r') as file:
-                                existing_data = json.load(file)
-
-                            existing_data.append(each_store_no)
-
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'w') as file:
-                                json.dump(existing_data, file)
-                        else:
-                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'w') as file:
-                                json.dump([each_store_no], file)
-                        
-                        main_counter += 1
-
-                    else:
-                        pass
+            if str(each_store_no)[-1].isalpha():
+                continue
             
-                    break
+            else:  
+                while True:
+                    try:
+                                
+                        if each_store_no not in already_scraped_ids:
+                            
+                            if main_counter != 0:
+                                # store no which are not scraped, keep limit = 100 and then try other script
+                                print("Finding Store")
+                                
+                                while True:
+                                    try:
+                                        wait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button'))).click()
+                                        # driver.find_element(By.XPATH, '//*[@id="header-content"]/div/div[2]/div/button').click()
+                                        sleep(2)
+                                        scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
+                                        driver.execute_script("arguments[0].scrollBy(0, 500);", scroll_drawer)
+                                        sleep(1)
+                                        break
+                                    except:
+                                        driver.refresh()
+                                        sleep(5)
+                                        continue 
+                            
+                        
+                            # next_store_no = wait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, 'input')))   
+                            next_store_no = driver.find_element(By.XPATH, '//*[@id="header-anchor-drawer"]/div[2]/div/div[2]/div[3]/div/div[1]')
+                            next_store_no = next_store_no.find_element(By.TAG_NAME, "input")
+                            next_store_no.send_keys(each_store_no)
+                            next_store_no.send_keys(Keys.ENTER)
+                            sleep(2)
 
-                except SessionNotCreatedException or WebDriverException or NoSuchElementException or TimeoutException or ElementNotInteractableException or StaleElementReferenceException:
-                    driver.refresh()
-                    sleep(3)
-        
+                            scroll_drawer = driver.find_element(By.ID, 'header-anchor-drawer')
+                            driver.execute_script("arguments[0].scrollBy(0, 100);", scroll_drawer)
+                            sleep(2)
+
+                            all_stores_list = driver.find_element(By.CLASS_NAME, 'sui-pt-3')
+                            first_store_to_select = all_stores_list.find_elements(By.CLASS_NAME, 'sui-mb-3')[0]
+                            # current_store_no = first_store_to_select.find_element(By.CLASS_NAME, 'sui-pt-1').text
+                            # print(current_store_no.split("#")[-1])
+                            all_btns = first_store_to_select.find_elements(By.CLASS_NAME, "sui-pt-2")
+                            all_btns[-1].click()
+                            sleep(5)
+
+                            try:
+                                selected_tag = driver.find_element(By.CLASS_NAME, 'fulfillment-tile').text.split("\n")
+
+                                if 'Unavailable' in selected_tag or 'Limited Stock' in selected_tag:
+                                    print(selected_tag, 'Out of Stock!')
+                                    qty = np.NAN
+
+                                else:
+                                    qty = driver.find_element(By.CLASS_NAME, 'fulfillment-qty-row').text
+                                    if qty.startswith('In stock'):
+                                        qty = np.NAN
+                                    else:
+                                        qty = int(qty.split(" ")[0])
+                            except:
+                                qty = np.NAN
+                            
+                            print(qty)
+                            
+                            todays_stock_status.append([each_store_no, qty])
+
+                            with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/{each_store_no}.json', "w") as file:
+                                json.dump(todays_stock_status, file)
+
+                            if os.path.exists(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json'):
+                                with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'r') as file:
+                                    existing_data = json.load(file)
+
+                                existing_data.append(each_store_no)
+
+                                with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'w') as file:
+                                    json.dump(existing_data, file)
+                            else:
+                                with open(f'brickseek_temp_json_morning_homedepot_{datetime.now().date()}_part2/already_scraped.json', 'w') as file:
+                                    json.dump([each_store_no], file)
+                            
+                            main_counter += 1
+
+                            sleep(2)
+
+                        else:
+                            pass
+                
+                        break
+
+                    except SessionNotCreatedException or WebDriverException or NoSuchElementException or TimeoutException or ElementNotInteractableException or StaleElementReferenceException:
+                        driver.refresh()
+                        sleep(3)
+            
         driver.quit()
 
     except NoSuchElementException:
